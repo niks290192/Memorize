@@ -16,9 +16,9 @@ jobs:
         with:
           node-version: '14.x'
       - name: Install Dependencies
-        run:  cd twitterBot && npm i
+        run:  cd tweetBot && npm i
       - name: Run Twitter bot
-        run: cd twitterBot && npm run twitter
+        run: cd tweetBot && npm run twitter
         env:
           TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
           TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
