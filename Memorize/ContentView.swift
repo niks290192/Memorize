@@ -19,7 +19,6 @@ struct ContentView: View {
                     ForEach(emojis[0..<cardCount], id: \.self) { emoji in
                         CardView(content: emoji)
                             .aspectRatio(2/3, contentMode: .fit)
-                        
                     }
                 }
                 .padding([.top, .leading, .trailing])
