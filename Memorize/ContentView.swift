@@ -8,107 +8,67 @@
 import SwiftUI
 
 struct ContentView: View {
-    var emojis = ["💻", "💾", "💿", "📽", "🎞", "🕹", "📼", "📱", "🎚", "📺", "📡", "🔫", "🔌", "💡", "📞", "🎙", "☎️", "🔦", "💣", "🧲", "🔭", "🔬", "🪓", "🔪", "🔩"]
+    @ObservedObject var gameViewModel: EmojiMemoryGame
     
     @State var cardCount = 5
     
     var body: some View {
         VStack {
-            ScrollView {
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 75))]) {
-                    ForEach(emojis[0..<cardCount], id: \.self) { emoji in
-                        CardView(content: emoji)
+            Text("Memoji")
+                .font(.title)
+                .fontWeight(.light)
+                .foregroundColor(.primary)
+                .padding(.top)
+            ScrollView{
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: bestCardWidthFor(numberOfCards: gameViewModel.cards.count)))]) {
+                    ForEach(gameViewModel.cards) { card in
+                        CardView(card: card)
                             .aspectRatio(2/3, contentMode: .fit)
+                            .onTapGesture {
+                                gameViewModel.choose(card)
+                            }
                     }
                 }
-                .padding([.top, .leading, .trailing])
-            }.padding(0)
+                .padding(.horizontal)
+            }
             .foregroundColor(.green)
-            Spacer()
-            HStack {
-                removeCardButton
-                Spacer()
-                addCardButton
-            }
-            .font(.title)
-            .padding(.horizontal)
-        }
-        .padding(.horizontal, 1)
-    }
-    
-    var addCardButton: some View {
-        Button {
-            if cardCount < emojis.count {
-                cardCount += 1
-            }
-        } label: {
-            Image(systemName: "plus.circle")
         }
     }
     
-    var removeCardButton: some View {
-        Button {
-            if cardCount > 1 {
-                cardCount -= 1
-            }
-        } label: {
-            Image(systemName: "minus.circle")
+    
+    func bestCardWidthFor(numberOfCards: Int) -> CGFloat {
+        if numberOfCards <= 4 {
+            return 125
+        } else if numberOfCards <= 8 {
+            return 100
+        } else if numberOfCards <= 12 {
+            return 75
+        } else if numberOfCards <= 24 {
+            return 55
+        } else {
+            return 50
         }
     }
     
 }
 
 struct CardView: View {
-    var content: String
-    @State var isFaceUp: Bool = true
+    let card: MemoryGame<String>.Card
     var body: some View {
         ZStack {
-            let shape = RoundedRectangle(cornerRadius: 20)
-            if isFaceUp {
+            let shape = RoundedRectangle(cornerRadius: 20, style: .continuous)
+            if card.isFaceUp {
                 shape.fill().foregroundColor(.white)
                 shape.strokeBorder(lineWidth: 3)
-                Text(content).font(.largeTitle)
+                Text(card.content).font(.largeTitle)
+            } else if card.isMatched {
+                shape.opacity(0.2)
             } else {
                 shape.fill()
             }
-        }.onTapGesture {
-            isFaceUp = !isFaceUp
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -116,10 +76,11 @@ struct CardView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        let game = EmojiMemoryGame()
+        ContentView(gameViewModel: game)
             .preferredColorScheme(.dark)
             .previewDevice("iPhone 12 Pro Max")
-        ContentView()
+        ContentView(gameViewModel: game)
             .preferredColorScheme(.light)
             .previewDevice("iPhone 12 Pro Max")
     }
